@@ -38,22 +38,25 @@ function TodoItem({ todo }: { todo: Todo }) {
   }
 
   return (
-    <li className="">
+    <li className=" border-t-2 border-slate-300 py-2 px-2">
       <input type="checkbox" checked={todo.completed} onChange={onCompletedChange} />
-      {todo.text}
-      <select
-        className="font-semibold"
-        style={{ color: todo.color }}
-        value={todo.color}
-        onChange={onColorChange}
-      >
-        <option value=""></option>
-        {AVAILABLE_COLORS.map(color => (
-          <option key={color} style={{ color }} value={color}>
-            {color}
-          </option>
-        ))}
-      </select>
+      <div className="px-2 w-10/12 inline-block">{todo.text}</div>
+      <div className="inline-block">
+        <select
+          className="font-semibold rounded border-2 border-solid border-gray-400 cursor-pointer "
+          style={{ color: todo.color }}
+          value={todo.color}
+          onChange={onColorChange}
+        >
+          <option value=""></option>
+          {AVAILABLE_COLORS.map(color => (
+            <option key={color} style={{ color }} value={color}>
+              {color}
+            </option>
+          ))}
+        </select>
+        <button className="px-1 font-semibold text-red-300 hover:text-red-500">X</button>
+      </div>
     </li>
   );
 }

@@ -9,11 +9,15 @@ export function Footer() {
   const todosRemaining = 1;
 
   return (
-    <footer>
-      <div>
-        <h5>Actions</h5>
-        <button>Mark All Completed</button>
-        <button>Clear Complited</button>
+    <footer className="flex flex-row mt-10 space-x-7">
+      <div className="text-center px-3">
+        <h5 className="font-bold">Actions</h5>
+        <button className="font-bold text-white px-5 py-1 block mt-3 bg-sky-500 rounded-md hover:bg-sky-600">
+          Mark All Completed
+        </button>
+        <button className="font-bold text-white px-5 py-1 mt-2 bg-sky-500 rounded-md hover:bg-sky-600">
+          Clear Complited
+        </button>
       </div>
       <RemainingTodos count={todosRemaining} />
       <StatusFilterForm status={status} />
@@ -26,7 +30,7 @@ function RemainingTodos({ count }: { count: number }) {
   const suffix = count === 1 ? '' : 's';
   return (
     <div>
-      <h5>Remaining Todos</h5>
+      <h5 className="font-bold">Remaining Todos</h5>
       <b>{count}</b> item{suffix} left
     </div>
   );
@@ -39,8 +43,8 @@ function StatusFilterForm({ status }: { status: StatusFilter }) {
 
   return (
     <div>
-      <h5>Filter by status</h5>
-      <form>
+      <h5 className="font-bold">Filter by status</h5>
+      <form className="flex flex-col">
         {Object.entries(StatusFilter).map(([key, value]) => (
           <label key={key}>
             <input
@@ -61,8 +65,8 @@ function StatusFilterForm({ status }: { status: StatusFilter }) {
 function ColorFilterForm({ colors }: { colors: string[] }) {
   return (
     <div>
-      <h5>Filter by Color</h5>
-      <form>
+      <h5 className="font-bold">Filter by Color</h5>
+      <form className=" flex flex-col text-left">
         {AVAILABLE_COLORS.map(color => (
           <label>
             <input type="checkbox" checked={colors.includes(color)} />
