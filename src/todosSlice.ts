@@ -25,7 +25,7 @@ export default function todosReducer(
       return [
         ...state,
         {
-          id: String(initialState.length + 1),
+          id: String(state.length + 1),
           text: action.payload,
           completed: false,
         },
@@ -54,3 +54,33 @@ export default function todosReducer(
       return state;
   }
 }
+
+// ACTION CREATORS.
+
+export const todoAdd = (todoText: string) => ({
+  type: 'todos/add' as const,
+  payload: todoText,
+});
+
+export const todoToggle = (todoId: string) => ({
+  type: 'todos/toggle' as const,
+  payload: todoId,
+});
+
+export const todoColorSelect = (todoId: string, color: string) => ({
+  type: 'todos/colorSelect' as const,
+  payload: { todoId, color },
+});
+
+export const todoDelete = (todoId: string) => ({
+  type: 'todos/delete' as const,
+  payload: todoId,
+});
+
+export const todoCompleteAll = () => ({
+  type: 'todos/completeAll' as const,
+});
+
+export const todoClearCompleted = () => ({
+  type: 'todos/clearCompleted' as const,
+});

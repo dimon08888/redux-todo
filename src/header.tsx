@@ -1,6 +1,7 @@
 import React from 'react';
 import { useState } from 'react';
 import { useAppDispatch } from './store';
+import { todoAdd } from './todosSlice';
 
 export function Header() {
   const [text, setText] = useState('');
@@ -9,7 +10,7 @@ export function Header() {
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     const trimmedText = e.currentTarget.value.trim();
     if (e.key === 'Enter' && trimmedText) {
-      dispatch({ type: 'todos/add', payload: trimmedText });
+      dispatch(todoAdd(trimmedText));
       setText('');
     }
   }

@@ -3,6 +3,8 @@ import { StatusFilter } from './types';
 import { capitalize } from './utils';
 import { AVAILABLE_COLORS } from './colors';
 import { useAppSelector, useAppDispatch } from './store';
+import { todoCompleteAll, todoClearCompleted } from './todosSlice';
+import { statusFilterChange, colorFilterChange } from './filtersSlice';
 
 export function Footer() {
   const dispatch = useAppDispatch();
@@ -11,26 +13,18 @@ export function Footer() {
     state => state.todos.filter(todo => !todo.completed).length,
   );
 
-  function onCompleteAll() {
-    dispatch({ type: 'todos/completeAll' });
-  }
-
-  function onClearCompleted() {
-    dispatch({ type: 'todos/clearCompleted' });
-  }
-
   return (
     <footer className="pt-2 flex flex-row mt-10 space-x-7 border-t-2 border-slate-300">
       <div className="text-center px-3">
         <h5 className="font-bold">Actions</h5>
         <button
-          onClick={onCompleteAll}
+          onClick={() => dispatch(todoCompleteAll())}
           className="font-bold text-white w-full px-5 py-1 block mt-3 bg-sky-500 rounded-md hover:bg-sky-600"
         >
           Mark All Completed
         </button>
         <button
-          onClick={onClearCompleted}
+          onClick={() => dispatch(todoClearCompleted())}
           className="font-bold text-white w-full px-5 py-1 mt-2 bg-sky-500 rounded-md hover:bg-sky-600"
         >
           Clear Completed
@@ -68,7 +62,7 @@ function StatusFilterForm({ status }: { status: StatusFilter }) {
               value={value}
               name="status"
               checked={status === value}
-              onChange={() => dispatch({ type: 'filters/statusChange', payload: value })}
+              onChange={() => dispatch(statusFilterChange(value))}
             />
             {value}
           </label>
@@ -83,7 +77,7 @@ function ColorFilterForm({ colors }: { colors: string[] }) {
 
   function onColorChange(e: React.ChangeEvent<HTMLInputElement>, color: string) {
     const changeType = e.target.checked ? 'add' : 'remove';
-    dispatch({ type: 'filters/colorsChange', payload: { color, changeType } });
+    dispatch(colorFilterChange(color, changeType));
   }
 
   return (

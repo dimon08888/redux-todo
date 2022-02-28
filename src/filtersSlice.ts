@@ -46,3 +46,13 @@ export default function filtersReducer(
       return state;
   }
 }
+
+export const statusFilterChange = (status: StatusFilter) => ({
+  type: 'filters/statusChange' as const,
+  payload: status,
+});
+
+export const colorFilterChange = (color: string, changeType: 'add' | 'remove') => ({
+  type: 'filters/colorsChange' as const,
+  payload: { color, changeType },
+});

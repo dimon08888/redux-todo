@@ -1,33 +1,34 @@
 import React from 'react';
 import { AVAILABLE_COLORS } from './colors';
-import type { Todo } from './types';
+import { StatusFilter, Todo } from './types';
 import { useAppSelector, useAppDispatch } from './store';
+import { todoColorSelect, todoDelete, todoToggle } from './todosSlice';
 
 export function TodoList() {
-  const items = useAppSelector(state => state.todos);
+  const todos = useAppSelector(state => {
+    const { status, colors } = state.filters;
 
-  const renderedItems = items.map(todo => <TodoItem todo={todo} key={todo.id} />);
+    if (status === StatusFilter.ALL && colors.length === 0) {
+      return state.todos;
+    }
+
+    const completedStatus = status === StatusFilter.COMPLETED;
+
+    return state.todos.filter(todo => {
+      const statusMatches =
+        status === StatusFilter.ALL || todo.completed === completedStatus;
+      const colorMatches = colors.length === 0 || colors.includes(todo.color as string);
+      return statusMatches && colorMatches;
+    });
+  });
+
+  const renderedItems = todos.map(todo => <TodoItem todo={todo} key={todo.id} />);
 
   return <ul>{renderedItems}</ul>;
 }
 
 function TodoItem({ todo }: { todo: Todo }) {
   const dispatch = useAppDispatch();
-
-  function onCompletedChange(e: React.ChangeEvent<HTMLInputElement>) {
-    dispatch({ type: 'todos/toggle', payload: todo.id });
-  }
-
-  function onColorSelect(e: React.ChangeEvent<HTMLSelectElement>) {
-    dispatch({
-      type: 'todos/colorSelect',
-      payload: { todoId: todo.id, color: e.target.value },
-    });
-  }
-
-  function onDelete() {
-    dispatch({ type: 'todos/delete', payload: todo.id });
-  }
 
   return (
     <li className="border-t-2 border-slate-300 py-2 px-2 flex items-center">
@@ -36,7 +37,7 @@ function TodoItem({ todo }: { todo: Todo }) {
           className="mr-2"
           type="checkbox"
           checked={todo.completed}
-          onChange={onCompletedChange}
+          onChange={() => dispatch(todoToggle(todo.id))}
         />
         {todo.text}
       </div>
@@ -46,7 +47,7 @@ function TodoItem({ todo }: { todo: Todo }) {
           className="font-bold rounded border-2 border-solid border-gray-400 cursor-pointer mr-2 capitalize"
           style={{ color: todo.color }}
           value={todo.color}
-          onChange={onColorSelect}
+          onChange={e => dispatch(todoColorSelect(todo.id, e.target.value))}
         >
           <option value=""></option>
           {AVAILABLE_COLORS.map(color => (
@@ -57,7 +58,7 @@ function TodoItem({ todo }: { todo: Todo }) {
         </select>
 
         <button
-          onClick={onDelete}
+          onClick={() => dispatch(todoDelete(todo.id))}
           className="px-1 font-semibold text-red-300 hover:text-red-500"
         >
           X
