@@ -1,0 +1,7 @@
+{
+  "todos": [
+    { "id": "1", "text": "Learn React", "completed": true },
+    { "id": "2", "text": "Learn Redux", "completed": false, "color": "purple" },
+    { "id": "3", "text": "Build something fun", "completed": false, "color": "blue" }
+  ]
+}

@@ -3,19 +3,19 @@ import { shallowEqual } from 'react-redux';
 import { AVAILABLE_COLORS } from './colors';
 import { StatusFilter } from './types';
 import { useAppSelector, useAppDispatch } from './store';
-import { todoColorSelect, todoDelete, todoToggle } from './todosSlice';
+import { selectTodos, todoColorSelect, todoDelete, todoToggle } from './todosSlice';
 
 export function TodoList() {
   const todoIds = useAppSelector(state => {
     const { status, colors } = state.filters;
 
     if (status === StatusFilter.ALL && colors.length === 0) {
-      return state.todos.map(todo => todo.id);
+      return selectTodos(state).map(todo => todo.id);
     }
 
     const completedStatus = status === StatusFilter.COMPLETED;
 
-    return state.todos
+    return selectTodos(state)
       .filter(todo => {
         const statusMatches =
           status === StatusFilter.ALL || todo.completed === completedStatus;
@@ -25,13 +25,21 @@ export function TodoList() {
       .map(todo => todo.id);
   }, shallowEqual);
 
+  const loadingStatus = useAppSelector(state => state.todos.status);
+
+  if (loadingStatus === 'loading') {
+    return <div>Loading...</div>;
+  }
+
   const renderedItems = todoIds.map(todoId => <TodoItem todoId={todoId} key={todoId} />);
 
   return <ul>{renderedItems}</ul>;
 }
 
 function TodoItem({ todoId }: { todoId: string }) {
-  const todo = useAppSelector(state => state.todos.find(todo => todo.id === todoId))!;
+  const todo = useAppSelector(state =>
+    selectTodos(state).find(todo => todo.id === todoId),
+  )!;
   const dispatch = useAppDispatch();
 
   return (

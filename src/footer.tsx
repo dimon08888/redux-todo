@@ -10,7 +10,7 @@ export function Footer() {
   const dispatch = useAppDispatch();
   const { status, colors } = useAppSelector(state => state.filters);
   const todosRemaining = useAppSelector(
-    state => state.todos.filter(todo => !todo.completed).length,
+    state => state.todos.entities.filter(todo => !todo.completed).length,
   );
 
   return (
