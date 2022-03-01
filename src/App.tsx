@@ -10,7 +10,7 @@ function App() {
   const dispatch = useAppDispatch();
 
   React.useEffect(() => {
-    dispatch(fetchTodos as any);
+    dispatch(fetchTodos() as any);
   }, [dispatch]);
 
   return (

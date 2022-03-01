@@ -1,7 +1,56 @@
 {
   "todos": [
-    { "id": "1", "text": "Learn React", "completed": true },
-    { "id": "2", "text": "Learn Redux", "completed": false, "color": "purple" },
-    { "id": "3", "text": "Build something fun", "completed": false, "color": "blue" }
+    {
+      "id": "1",
+      "text": "Learn React",
+      "completed": true
+    },
+    {
+      "id": "2",
+      "text": "Learn Redux",
+      "completed": false,
+      "color": "purple"
+    },
+    {
+      "id": "3",
+      "text": "Build something fun",
+      "completed": false,
+      "color": "blue"
+    },
+    {
+      "text": "Hello World",
+      "completed": false,
+      "id": "KGUxkT4"
+    },
+    {
+      "text": "Newdkjdgk",
+      "completed": false,
+      "id": "BWdtrM3"
+    },
+    {
+      "text": "dfhddhfdhdfhdfhdh",
+      "completed": false,
+      "id": "ff5lc8E"
+    },
+    {
+      "text": "sdsdgsgdsgs",
+      "completed": false,
+      "id": "ZB-ghAw"
+    },
+    {
+      "text": "dfdfdfdfdf",
+      "completed": false,
+      "id": "YEX9knW"
+    },
+    {
+      "text": "qwqrqtqtqwt",
+      "completed": false,
+      "id": "FKP8wSy"
+    },
+    {
+      "text": "qweqwrqrqwrq",
+      "completed": false,
+      "id": "uFT4QW1"
+    }
   ]
 }

@@ -12,7 +12,7 @@ const initialState: TodosState = {
 };
 
 type TodosAction =
-  | { type: 'todos/add'; payload: string }
+  | { type: 'todos/add'; payload: Todo }
   | { type: 'todos/toggle'; payload: string }
   | { type: 'todos/delete'; payload: string }
   | { type: 'todos/colorSelect'; payload: { todoId: string; color: string } }
@@ -31,11 +31,12 @@ export default function todosReducer(
         ...state,
         entities: [
           ...state.entities,
-          {
-            id: String(state.entities.length + 1),
-            text: action.payload,
-            completed: false,
-          },
+          action.payload,
+          //   {
+          //     id: String(state.entities.length + 1),
+          //     text: action.payload,
+          //     completed: false,
+          //   },
         ],
       };
     }
@@ -86,22 +87,38 @@ export default function todosReducer(
 }
 
 // THUNK.
+export function fetchTodos() {
+  return async function (
+    dispatch: typeof store.dispatch,
+    getState: typeof store.getState,
+  ) {
+    dispatch({ type: 'todos/loading' });
+    const response = await fetch('http://localhost:5000/todos');
+    const todos = await response.json();
+    dispatch({ type: 'todos/load', payload: todos });
+  };
+}
 
-export async function fetchTodos(
-  dispatch: typeof store.dispatch,
-  getState: typeof store.getState,
-) {
-  dispatch({ type: 'todos/loading' });
-  fetch('http://localhost:5000/todos')
-    .then(response => response.json())
-    .then(todos => dispatch({ type: 'todos/load', payload: todos }));
+export function createTodo(text: string) {
+  return async function (
+    dispatch: typeof store.dispatch,
+    getState: typeof store.getState,
+  ) {
+    const response = await fetch('http://localhost:5000/todos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, completed: false }),
+    });
+    const todo = await response.json();
+    dispatch(todoAdd(todo));
+  };
 }
 
 // ACTION CREATORS.
 
-export const todoAdd = (todoText: string) => ({
+export const todoAdd = (todo: Todo) => ({
   type: 'todos/add' as const,
-  payload: todoText,
+  payload: todo,
 });
 
 export const todoToggle = (todoId: string) => ({
