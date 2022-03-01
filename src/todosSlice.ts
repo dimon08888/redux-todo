@@ -1,14 +1,25 @@
-import store, { AppDispatch, RootState } from './store';
+import { stat } from 'fs';
+import store, { RootState } from './store';
 import { Todo } from './types';
+
+// const todos = [
+//   { id: 2, text: 'Buy milk', completed: false },
+//   { id: 7, text: 'Clean room', completed: true }
+// ]
+
+// const todosNormalized: Record<string, Todo> = {
+//   '2': { id: '2', text: 'Buy milk', completed: false },
+//   '7': { id: '7', text: 'Clean room', completed: false },
+// };
 
 type TodosState = {
   status: 'idle' | 'loading';
-  entities: Todo[];
+  entities: Record<string, Todo>;
 };
 
 const initialState: TodosState = {
   status: 'idle',
-  entities: [],
+  entities: {},
 };
 
 type TodosAction =
@@ -27,59 +38,66 @@ export default function todosReducer(
 ): TodosState {
   switch (action.type) {
     case 'todos/add': {
+      const todo = action.payload;
       return {
         ...state,
-        entities: [
-          ...state.entities,
-          action.payload,
-          //   {
-          //     id: String(state.entities.length + 1),
-          //     text: action.payload,
-          //     completed: false,
-          //   },
-        ],
+        entities: { ...state.entities, [todo.id]: todo },
       };
     }
     case 'todos/toggle': {
+      const todo = state.entities[action.payload];
       return {
         ...state,
-        entities: state.entities.map(todo =>
-          todo.id === action.payload ? { ...todo, completed: !todo.completed } : todo,
-        ),
+        entities: {
+          ...state.entities,
+          [todo.id]: { ...todo, completed: !todo.completed },
+        },
       };
     }
     case 'todos/delete': {
-      return {
-        ...state,
-        entities: state.entities.filter(todo => todo.id !== action.payload),
-      };
+      const newEntities = { ...state.entities };
+      delete newEntities[action.payload];
+      return { ...state, entities: newEntities };
     }
     case 'todos/colorSelect': {
       const { todoId, color } = action.payload;
+      const todo = state.entities[todoId];
       return {
         ...state,
-        entities: state.entities.map(todo =>
-          todo.id === todoId ? { ...todo, color } : todo,
-        ),
+        entities: {
+          ...state.entities,
+          [todoId]: { ...todo, color },
+        },
       };
     }
     case 'todos/completeAll': {
-      return {
-        ...state,
-        entities: state.entities.map(todo => ({ ...todo, completed: true })),
-      };
+      const newEntities = { ...state.entities };
+      Object.values(newEntities).forEach(todo => {
+        newEntities[todo.id] = { ...todo, completed: true };
+      });
+      return { ...state, entities: newEntities };
     }
     case 'todos/clearCompleted': {
+      const newEntities = { ...state.entities };
+      Object.values(newEntities).forEach(todo => {
+        if (todo.completed) {
+          delete newEntities[todo.id];
+        }
+      });
       return {
         ...state,
-        entities: state.entities.filter(todo => !todo.completed),
+        entities: newEntities,
       };
     }
     case 'todos/loading': {
       return { ...state, status: 'loading' };
     }
     case 'todos/load': {
-      return { status: 'idle', entities: action.payload };
+      const newEntities: Record<string, Todo> = {};
+      action.payload.forEach(todo => {
+        newEntities[todo.id] = todo;
+      });
+      return { ...state, status: 'idle', entities: newEntities };
     }
     default:
       return state;
@@ -146,4 +164,7 @@ export const todoClearCompleted = () => ({
 
 // SELECTORS
 
-export const selectTodos = (state: RootState) => state.todos.entities;
+export const selectTodos = (state: RootState) => Object.values(state.todos.entities);
+
+export const selectTodobyId = (state: RootState, todoId: string) =>
+  state.todos.entities[todoId];

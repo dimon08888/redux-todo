@@ -3,7 +3,13 @@ import { shallowEqual } from 'react-redux';
 import { AVAILABLE_COLORS } from './colors';
 import { StatusFilter } from './types';
 import { useAppSelector, useAppDispatch } from './store';
-import { selectTodos, todoColorSelect, todoDelete, todoToggle } from './todosSlice';
+import {
+  selectTodobyId,
+  selectTodos,
+  todoColorSelect,
+  todoDelete,
+  todoToggle,
+} from './todosSlice';
 
 export function TodoList() {
   const todoIds = useAppSelector(state => {
@@ -37,9 +43,7 @@ export function TodoList() {
 }
 
 function TodoItem({ todoId }: { todoId: string }) {
-  const todo = useAppSelector(state =>
-    selectTodos(state).find(todo => todo.id === todoId),
-  )!;
+  const todo = useAppSelector(state => selectTodobyId(state, todoId))!;
   const dispatch = useAppDispatch();
 
   return (

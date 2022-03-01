@@ -3,14 +3,14 @@ import { StatusFilter } from './types';
 import { capitalize } from './utils';
 import { AVAILABLE_COLORS } from './colors';
 import { useAppSelector, useAppDispatch } from './store';
-import { todoCompleteAll, todoClearCompleted } from './todosSlice';
+import { todoCompleteAll, todoClearCompleted, selectTodos } from './todosSlice';
 import { statusFilterChange, colorFilterChange } from './filtersSlice';
 
 export function Footer() {
   const dispatch = useAppDispatch();
   const { status, colors } = useAppSelector(state => state.filters);
   const todosRemaining = useAppSelector(
-    state => state.todos.entities.filter(todo => !todo.completed).length,
+    state => selectTodos(state).filter(todo => !todo.completed).length,
   );
 
   return (
