@@ -1,3 +1,4 @@
+import { configureStore } from '@reduxjs/toolkit';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
@@ -7,15 +8,22 @@ import filtersReducer from './filtersSlice';
 import todosReducer from './todosSlice';
 import { loggerMiddleware } from './middleware';
 
-const rootReducer = combineReducers({
-  todos: todosReducer,
-  filters: filtersReducer,
+// const rootReducer = combineReducers({
+//   todos: todosReducer,
+//   filters: filtersReducer,
+// });
+
+// const middlewareEnhancer = applyMiddleware(thunkMiddleware, loggerMiddleware);
+// const composedEnhancer = composeWithDevTools(middlewareEnhancer);
+
+// const store = createStore(rootReducer, composedEnhancer);
+
+const store = configureStore({
+  reducer: {
+    todos: todosReducer,
+    filters: filtersReducer as any,
+  },
 });
-
-const middlewareEnhancer = applyMiddleware(thunkMiddleware, loggerMiddleware);
-const composedEnhancer = composeWithDevTools(middlewareEnhancer);
-
-const store = createStore(rootReducer, composedEnhancer);
 export default store;
 
 export type AppDispatch = typeof store.dispatch;

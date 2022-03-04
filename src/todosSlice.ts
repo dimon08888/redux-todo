@@ -1,4 +1,4 @@
-import { stat } from 'fs';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import store, { RootState } from './store';
 import { Todo } from './types';
 
@@ -22,144 +22,87 @@ const initialState: TodosState = {
   entities: {},
 };
 
-type TodosAction =
-  | { type: 'todos/add'; payload: Todo }
-  | { type: 'todos/toggle'; payload: string }
-  | { type: 'todos/delete'; payload: string }
-  | { type: 'todos/colorSelect'; payload: { todoId: string; color: string } }
-  | { type: 'todos/completeAll' }
-  | { type: 'todos/clearCompleted' }
-  | { type: 'todos/loading' }
-  | { type: 'todos/load'; payload: Todo[] };
-
-export default function todosReducer(
-  state = initialState,
-  action: TodosAction,
-): TodosState {
-  switch (action.type) {
-    case 'todos/add': {
+const todosSlice = createSlice({
+  name: 'todos',
+  initialState,
+  reducers: {
+    todoAdd: (state, action) => {
       const todo = action.payload;
-      return {
-        ...state,
-        entities: { ...state.entities, [todo.id]: todo },
-      };
-    }
-    case 'todos/toggle': {
+      state.entities[todo.id] = todo;
+    },
+    todoToggle: (state, action) => {
       const todo = state.entities[action.payload];
-      return {
-        ...state,
-        entities: {
-          ...state.entities,
-          [todo.id]: { ...todo, completed: !todo.completed },
-        },
-      };
-    }
-    case 'todos/delete': {
-      const newEntities = { ...state.entities };
-      delete newEntities[action.payload];
-      return { ...state, entities: newEntities };
-    }
-    case 'todos/colorSelect': {
-      const { todoId, color } = action.payload;
-      const todo = state.entities[todoId];
-      return {
-        ...state,
-        entities: {
-          ...state.entities,
-          [todoId]: { ...todo, color },
-        },
-      };
-    }
-    case 'todos/completeAll': {
-      const newEntities = { ...state.entities };
-      Object.values(newEntities).forEach(todo => {
-        newEntities[todo.id] = { ...todo, completed: true };
+      todo.completed = !todo.completed;
+    },
+    todoColorSelect: {
+      reducer: (state, action) => {
+        const { color, todoId } = action.payload;
+        state.entities[todoId].color = color;
+      },
+      prepare: ((todoId: string, color: string) => {
+        return { payload: { todoId, color } };
+      }) as any,
+    },
+    todoDelete: (state, action) => {
+      delete state.entities[action.payload];
+    },
+    todoCompleteAll: state => {
+      Object.values(state.entities).forEach(todo => {
+        todo.completed = true;
       });
-      return { ...state, entities: newEntities };
-    }
-    case 'todos/clearCompleted': {
-      const newEntities = { ...state.entities };
-      Object.values(newEntities).forEach(todo => {
+    },
+    todoClearCompleted: state => {
+      Object.values(state.entities).forEach(todo => {
         if (todo.completed) {
-          delete newEntities[todo.id];
+          delete state.entities[todo.id];
         }
       });
-      return {
-        ...state,
-        entities: newEntities,
-      };
-    }
-    case 'todos/loading': {
-      return { ...state, status: 'loading' };
-    }
-    case 'todos/load': {
-      const newEntities: Record<string, Todo> = {};
-      action.payload.forEach(todo => {
-        newEntities[todo.id] = todo;
+    },
+  },
+  extraReducers: builder => {
+    builder
+      .addCase(fetchTodos.pending, (state, action) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchTodos.fulfilled, (state, action) => {
+        const newEntities: Record<string, Todo> = {};
+        action.payload.forEach((todo: Todo) => {
+          newEntities[todo.id] = todo;
+        });
+        state.entities = newEntities;
+        state.status = 'idle';
+      })
+      .addCase(createTodo.fulfilled, (state, action) => {
+        const todo = action.payload;
+        state.entities[todo.id] = todo;
       });
-      return { ...state, status: 'idle', entities: newEntities };
-    }
-    default:
-      return state;
-  }
-}
-
-// THUNK.
-export function fetchTodos() {
-  return async function (
-    dispatch: typeof store.dispatch,
-    getState: typeof store.getState,
-  ) {
-    dispatch({ type: 'todos/loading' });
-    const response = await fetch('http://localhost:5000/todos');
-    const todos = await response.json();
-    dispatch({ type: 'todos/load', payload: todos });
-  };
-}
-
-export function createTodo(text: string) {
-  return async function (
-    dispatch: typeof store.dispatch,
-    getState: typeof store.getState,
-  ) {
-    const response = await fetch('http://localhost:5000/todos', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, completed: false }),
-    });
-    const todo = await response.json();
-    dispatch(todoAdd(todo));
-  };
-}
-
-// ACTION CREATORS.
-
-export const todoAdd = (todo: Todo) => ({
-  type: 'todos/add' as const,
-  payload: todo,
+  },
 });
 
-export const todoToggle = (todoId: string) => ({
-  type: 'todos/toggle' as const,
-  payload: todoId,
+export const {
+  todoAdd,
+  todoToggle,
+  todoDelete,
+  todoColorSelect,
+  todoCompleteAll,
+  todoClearCompleted,
+} = todosSlice.actions;
+export default todosSlice.reducer;
+
+export const fetchTodos = createAsyncThunk('todos/fetchTodos', async () => {
+  const response = await fetch('http://localhost:5000/todos');
+  const todos = await response.json();
+  return todos;
 });
 
-export const todoColorSelect = (todoId: string, color: string) => ({
-  type: 'todos/colorSelect' as const,
-  payload: { todoId, color },
-});
-
-export const todoDelete = (todoId: string) => ({
-  type: 'todos/delete' as const,
-  payload: todoId,
-});
-
-export const todoCompleteAll = () => ({
-  type: 'todos/completeAll' as const,
-});
-
-export const todoClearCompleted = () => ({
-  type: 'todos/clearCompleted' as const,
+export const createTodo = createAsyncThunk('todos/createTodo', async (text: string) => {
+  const response = await fetch('http://localhost:5000/todos', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text, completed: false }),
+  });
+  const todo = await response.json();
+  return todo;
 });
 
 // SELECTORS

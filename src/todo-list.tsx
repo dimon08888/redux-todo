@@ -63,7 +63,7 @@ function TodoItem({ todoId }: { todoId: string }) {
           className="font-bold rounded border-2 border-solid border-gray-400 cursor-pointer mr-2 capitalize"
           style={{ color: todo.color }}
           value={todo.color}
-          onChange={e => dispatch(todoColorSelect(todo.id, e.target.value))}
+          onChange={e => dispatch((todoColorSelect as any)(todo.id, e.target.value))}
         >
           <option value=""></option>
           {AVAILABLE_COLORS.map(color => (
